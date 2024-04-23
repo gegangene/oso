@@ -6,7 +6,7 @@
 #include <map>
 #include <fstream>
 #include "compression.h"
-//#include <iostream>
+#include <iostream>
 
 bool saver(uint8_t &ch, uint8_t &toAdd, uint8_t &fromPrevious, uint8_t len[3])
 {
@@ -75,7 +75,7 @@ bool unsaver(uint8_t &ch, uint8_t &gottenChar, uint8_t &fromPrevious, uint8_t le
 
 uint8_t bitsMax(uint8_t &maxCharValInDic)
 {
-	uint8_t bitsForChar=0;
+	uint8_t bitsForChar=1;
 	while(maxCharValInDic>0)
 	{
 		maxCharValInDic>>=1;
@@ -141,9 +141,12 @@ void compress(std::string &inputFilename, std::string &outputFilename)
 void decompress(std::string &inputFilename, std::string &outputFilename)
 {
 	std::ifstream inputFile(inputFilename);
+
+	//getting the dictionary size
 	uint8_t universalCharacter;
 	inputFile>>std::noskipws>>universalCharacter;
 
+	//getting the dictionary
 	std::map<uint8_t, uint8_t> dictionary;
 	uint8_t charCounter=0;
 	for(int i=0; i<universalCharacter; i++)
@@ -155,17 +158,22 @@ void decompress(std::string &inputFilename, std::string &outputFilename)
 		charCounter++;
 	}
 
-	for(auto &[key,val]: dictionary)
-	{
+	//couting a dictionary
+//	for(auto &[key,val]: dictionary)
+//	{
 //		std::cout<<'\n'<<(int)key<<"\t|\t"<<(int)val;
-	}
+//	}
 
+	//getting padding
 	inputFile>>std::noskipws>>universalCharacter;
 	uint8_t padding=universalCharacter>>5;
+
+	//extracting text data from padding data
 	universalCharacter<<=3;
 	universalCharacter>>=3;
 
 //	std::cout<<'\n'<<(int)padding<<'\n';
+	//declaring no of bits needed to write one char
 	uint8_t bitsForChar=bitsMax(--charCounter);
 
 	uint8_t ch=universalCharacter;
